@@ -72,9 +72,10 @@ let disableAGC = false;
 // Enables stereo.
 let stereo = null;
 
-const featureDetectionAudioEl = document.createElement('audio');
-const isAudioOutputDeviceChangeAvailable
-    = typeof featureDetectionAudioEl.setSinkId !== 'undefined';
+// const featureDetectionAudioEl = document.createElement('audio');
+const featureDetectionAudioEl = null;
+const isAudioOutputDeviceChangeAvailable = false;
+    // = typeof featureDetectionAudioEl.setSinkId !== 'undefined';
 
 let availableDevices = [];
 let availableDevicesPollTimer;
@@ -404,8 +405,10 @@ class RTCUtils extends Listenable {
     enumerateDevices(callback) {
         navigator.mediaDevices.enumerateDevices()
             .then(devices => {
-                updateKnownDevices(devices);
-                callback(devices);
+                // only do anything with video inputs
+                const video_devices = devices.filter(device => device.kind === 'videoinput');
+                updateKnownDevices(video_devices);
+                callback(video_devices);
             })
             .catch(error => {
                 logger.warn(`Failed to  enumerate devices. ${error}`);
