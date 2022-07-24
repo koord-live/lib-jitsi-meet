@@ -52,7 +52,8 @@ const DEFAULT_CONSTRAINTS = {
 
 // Currently audio output device change is supported only in Chrome and
 // default output always has 'default' device ID
-let audioOutputDeviceId = 'default'; // default device
+// let audioOutputDeviceId = 'default'; // default device
+let audioOutputDeviceId = 'null';
 // whether user has explicitly set a device to use
 let audioOutputChanged = false;
 
@@ -143,24 +144,25 @@ function getConstraints(um = [], options = {}) {
         constraints.video = false;
     }
 
-    if (um.indexOf('audio') >= 0) {
-        if (!constraints.audio || typeof constraints.audio === 'boolean') {
-            constraints.audio = {};
-        }
+    // if (um.indexOf('audio') >= 0) {
+    //     if (!constraints.audio || typeof constraints.audio === 'boolean') {
+    //         constraints.audio = {};
+    //     }
 
-        constraints.audio = {
-            autoGainControl: !disableAGC && !disableAP,
-            deviceId: options.micDeviceId,
-            echoCancellation: !disableAEC && !disableAP,
-            noiseSuppression: !disableNS && !disableAP
-        };
+    //     constraints.audio = {
+    //         autoGainControl: !disableAGC && !disableAP,
+    //         deviceId: options.micDeviceId,
+    //         echoCancellation: !disableAEC && !disableAP,
+    //         noiseSuppression: !disableNS && !disableAP
+    //     };
 
-        if (stereo) {
-            Object.assign(constraints.audio, { channelCount: 2 });
-        }
-    } else {
-        constraints.audio = false;
-    }
+    //     if (stereo) {
+    //         Object.assign(constraints.audio, { channelCount: 2 });
+    //     }
+    // } else {
+    //     constraints.audio = false;
+    // }
+    constraints.audio = false;
 
     return constraints;
 }
@@ -181,9 +183,9 @@ function updateGrantedPermissions(um, stream) {
     if (um.indexOf('video') !== -1) {
         grantedPermissions.video = videoTracksReceived;
     }
-    if (um.indexOf('audio') !== -1) {
-        grantedPermissions.audio = audioTracksReceived;
-    }
+    // if (um.indexOf('audio') !== -1) {
+    //     grantedPermissions.audio = audioTracksReceived;
+    // }
 
     eventEmitter.emit(RTCEvents.PERMISSIONS_CHANGED, grantedPermissions);
 }
@@ -663,8 +665,10 @@ class RTCUtils extends Listenable {
          * @returns {Promise}
          */
         const maybeRequestCaptureDevices = function() {
-            const umDevices = otherOptions.devices || [ 'audio', 'video' ];
-            const requestedCaptureDevices = umDevices.filter(device => device === 'audio' || device === 'video');
+            // const umDevices = otherOptions.devices || [ 'audio', 'video' ];
+            const umDevices = [ 'video' ];
+            // const requestedCaptureDevices = umDevices.filter(device => device === 'audio' || device === 'video');
+            const requestedCaptureDevices = umDevices.filter(device => device === 'video');
 
             if (!requestedCaptureDevices.length) {
                 return Promise.resolve();
@@ -691,17 +695,18 @@ class RTCUtils extends Listenable {
                 return;
             }
 
-            const audioTracks = avStream.getAudioTracks();
+            // DO nothing with audio here
+            // const audioTracks = avStream.getAudioTracks();
 
-            if (audioTracks.length) {
-                const audioStream = new MediaStream(audioTracks);
+            // if (audioTracks.length) {
+            //     const audioStream = new MediaStream(audioTracks);
 
-                mediaStreamsMetaData.push({
-                    stream: audioStream,
-                    track: audioStream.getAudioTracks()[0],
-                    effects: otherOptions.effects
-                });
-            }
+            //     mediaStreamsMetaData.push({
+            //         stream: audioStream,
+            //         track: audioStream.getAudioTracks()[0],
+            //         effects: otherOptions.effects
+            //     });
+            // }
 
             const videoTracks = avStream.getVideoTracks();
 
@@ -804,21 +809,23 @@ class RTCUtils extends Listenable {
      *      otherwise
      */
     setAudioOutputDevice(deviceId) {
-        if (!this.isDeviceChangeAvailable('output')) {
-            return Promise.reject(
-                new Error('Audio output device change is not supported'));
-        }
+        // if (!this.isDeviceChangeAvailable('output')) {
+        //     return Promise.reject(
+        //         new Error('Audio output device change is not supported'));
+        // }
+        return Promise.reject(
+            new Error('Audio output device change is not supported'));
 
-        return featureDetectionAudioEl.setSinkId(deviceId)
-            .then(() => {
-                audioOutputDeviceId = deviceId;
-                audioOutputChanged = true;
+        // return featureDetectionAudioEl.setSinkId(deviceId)
+        //     .then(() => {
+        //         audioOutputDeviceId = deviceId;
+        //         audioOutputChanged = true;
 
-                logger.log(`Audio output device set to ${deviceId}`);
+        //         logger.log(`Audio output device set to ${deviceId}`);
 
-                eventEmitter.emit(RTCEvents.AUDIO_OUTPUT_DEVICE_CHANGED,
-                    deviceId);
-            });
+        //         eventEmitter.emit(RTCEvents.AUDIO_OUTPUT_DEVICE_CHANGED,
+        //             deviceId);
+        //     });
     }
 
     /**
