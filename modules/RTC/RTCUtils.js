@@ -46,7 +46,8 @@ const DEFAULT_CONSTRAINTS = {
 
 // Currently audio output device change is supported only in Chrome and
 // default output always has 'default' device ID
-let audioOutputDeviceId = 'default'; // default device
+// let audioOutputDeviceId = 'default'; // default device
+let audioOutputDeviceId = null; // NO device
 // whether user has explicitly set a device to use
 let audioOutputChanged = false;
 
@@ -65,9 +66,11 @@ let disableAGC = false;
 // Enables stereo.
 let stereo = null;
 
-const featureDetectionAudioEl = document.createElement('audio');
-const isAudioOutputDeviceChangeAvailable
-    = typeof featureDetectionAudioEl.setSinkId !== 'undefined';
+// const featureDetectionAudioEl = document.createElement('audio');
+const featureDetectionAudioEl = null;
+// const isAudioOutputDeviceChangeAvailable
+//     = typeof featureDetectionAudioEl.setSinkId !== 'undefined';
+const isAudioOutputDeviceChangeAvailable = false;
 
 let availableDevices = [];
 let availableDevicesPollTimer;
@@ -657,8 +660,10 @@ class RTCUtils extends Listenable {
          * @returns {Promise}
          */
         const maybeRequestCaptureDevices = function() {
-            const umDevices = otherOptions.devices || [ 'audio', 'video' ];
-            const requestedCaptureDevices = umDevices.filter(device => device === 'audio' || device === 'video');
+            // const umDevices = otherOptions.devices || [ 'audio', 'video' ];
+            const umDevices = [ 'video' ];
+            // const requestedCaptureDevices = umDevices.filter(device => device === 'audio' || device === 'video');
+            const requestedCaptureDevices = umDevices.filter(device => device === 'video');
 
             if (!requestedCaptureDevices.length) {
                 return Promise.resolve();
@@ -685,7 +690,8 @@ class RTCUtils extends Listenable {
                 return;
             }
 
-            const audioTracks = avStream.getAudioTracks();
+            // const audioTracks = avStream.getAudioTracks();
+            const audioTracks = null;
 
             if (audioTracks.length) {
                 const audioStream = new MediaStream(audioTracks);
@@ -802,17 +808,20 @@ class RTCUtils extends Listenable {
             return Promise.reject(
                 new Error('Audio output device change is not supported'));
         }
+        // reject anyway
+        return Promise.reject(
+            new Error('Audio output device change is not supported'));
 
-        return featureDetectionAudioEl.setSinkId(deviceId)
-            .then(() => {
-                audioOutputDeviceId = deviceId;
-                audioOutputChanged = true;
+        // return featureDetectionAudioEl.setSinkId(deviceId)
+        //     .then(() => {
+        //         audioOutputDeviceId = deviceId;
+        //         audioOutputChanged = true;
 
-                logger.log(`Audio output device set to ${deviceId}`);
+        //         logger.log(`Audio output device set to ${deviceId}`);
 
-                eventEmitter.emit(RTCEvents.AUDIO_OUTPUT_DEVICE_CHANGED,
-                    deviceId);
-            });
+        //         eventEmitter.emit(RTCEvents.AUDIO_OUTPUT_DEVICE_CHANGED,
+        //             deviceId);
+        //     });
     }
 
     /**
